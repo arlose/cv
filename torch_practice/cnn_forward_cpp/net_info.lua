@@ -16,9 +16,9 @@ file=io.open('train.txt', 'w')
 assert(file)
 
 --print(net)
+infofile:write(#net.modules,'\n')
 
 for i=1,#net.modules do
-	infofile:write(i,' ')
 	print('-------------  ' .. i .. '  -------------')
 	print(net.modules[i])
 	-- SpatialConvolution 	11
@@ -120,7 +120,8 @@ for i=1,#net.modules do
 		file:write('\n')
 		
 	else
-		infofile:write(0,' ')
+		infofile:write(0,' ') --weight
+		infofile:write(0,' ') --bias
 	end
 	print('output:')
 	print(#net.modules[i].output) 
