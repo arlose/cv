@@ -17,24 +17,27 @@ for i=1,#net.modules do
 	print('-------------  ' .. i .. '  -------------')
 	print(net.modules[i])
 	-- SpatialConvolution 	11
-	-- ReLU 		12
-	-- SpatialMaxPooling 	13
-	-- Reshape		14
-	-- Linear		15
-	-- LogSoftMax		16
+	-- TanH 		12
+	-- ReLU 		13
+	-- SpatialMaxPooling 	14
+	-- Reshape		15
+	-- Linear		16
+	-- LogSoftMax		17
 	str = tostring(net.modules[i])
 	if string.find(str, 'SpatialConvolution') then
 		infofile:write(11,' ')
-	elseif string.find(str, 'ReLU') then
+	elseif string.find(str, 'TanH') then
 		infofile:write(12,' ')
-	elseif string.find(str, 'MaxPooling') then
+	elseif string.find(str, 'ReLU') then
 		infofile:write(13,' ')
-	elseif string.find(str, 'Reshape') then
+	elseif string.find(str, 'MaxPooling') then
 		infofile:write(14,' ')
-	elseif string.find(str, 'Linear') then
+	elseif string.find(str, 'Reshape') then
 		infofile:write(15,' ')
-	elseif string.find(str, 'LogSoftMax') then
+	elseif string.find(str, 'Linear') then
 		infofile:write(16,' ')
+	elseif string.find(str, 'LogSoftMax') then
+		infofile:write(17,' ')
 	end
 	print('input:')
 	print(#net.modules[i].gradInput) 
