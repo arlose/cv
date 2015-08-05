@@ -7,8 +7,13 @@ require 'image'
 --load the torch result file
 net = torch.load('train.net')
 
+--save the net infomation to txt
 infofile=io.open('info.txt', 'w')
 assert(infofile)
+
+--save the net to txt
+file=io.open('train.txt', 'w')
+assert(file)
 
 --print(net)
 
@@ -48,16 +53,72 @@ for i=1,#net.modules do
 	if net.modules[i].weight ~= nil then
 		print('weight:')
 		print(#net.modules[i].weight) 
-		infofile:write(net.modules[i].weight:nDimension(),' ')
+		wd = net.modules[i].weight:nDimension()
+		infofile:write(wd,' ')
 		for j=1,net.modules[i].weight:nDimension() do
 			infofile:write(net.modules[i].weight:size()[j],' ')
 		end
+		-- weight dimension max 4
+		assert(wd<5)
+		if wd == 4 then
+			ws1 = net.modules[i].weight:size()[1]
+			ws2 = net.modules[i].weight:size()[2]
+			ws3 = net.modules[i].weight:size()[3]
+			ws4 = net.modules[i].weight:size()[4]
+			for k=1,ws1 do
+				for l=1,ws2 do
+					for m=1,ws3 do
+						for n=1,ws4 do
+							file:write(net.modules[i].weight[k][l][m][n],' ')
+						end
+					end
+				end
+			end
+			file:write('\n')
+		elseif wd == 3 then
+			ws1 = net.modules[i].weight:size()[1]
+			ws2 = net.modules[i].weight:size()[2]
+			ws3 = net.modules[i].weight:size()[3]
+			for l=1,ws1 do
+				for m=1,ws2 do
+					for n=1,ws3 do
+						file:write(net.modules[i].weight[l][m][n],' ')
+					end
+				end
+			end
+			file:write('\n')
+		elseif wd == 2 then
+			ws1 = net.modules[i].weight:size()[1]
+			ws2 = net.modules[i].weight:size()[2]
+			for m=1,ws1 do
+				for n=1,ws2 do
+					file:write(net.modules[i].weight[m][n],' ')
+				end
+			end
+			file:write('\n')
+		elseif wd == 1 then
+			ws1 = net.modules[i].weight:size()[1]
+			for n=1,ws1 do
+				file:write(net.modules[i].weight[n],' ')
+			end
+			file:write('\n')
+		end
+		
 		print('bias:')
 		print(#net.modules[i].bias) 
-		infofile:write(net.modules[i].bias:nDimension(),' ')
+		bd = net.modules[i].bias:nDimension()
+		infofile:write(bd,' ')
+		-- bias always has dimension of 1
+		assert(bd==1)
 		for j=1,net.modules[i].bias:nDimension() do
 			infofile:write(net.modules[i].bias:size()[j],' ')
 		end
+		bs = net.modules[i].bias:size()[1]
+		for n=1,bs do
+			file:write(net.modules[i].bias[n],' ')
+		end
+		file:write('\n')
+		
 	else
 		infofile:write(0,' ')
 	end
@@ -71,4 +132,5 @@ for i=1,#net.modules do
 end
 
 infofile:close()
+file:close()
 
