@@ -11,26 +11,31 @@ int main(int argc, char* argv[])
 {
 	// load the cnn model
 	cnn food;
-	food.loadModel("./models/train.txt");
+	food.loadModelInfo("./info.txt");
+	printf("loadModelInfo\n");
+	food.loadModel("./train.txt");
+	printf("loadModel\n");
 
 	// forward the cnn
 	stringstream ss;
 	string filename;
 	Mat img;
-        for(int idx = 1; idx <= 99; ++idx)
+        for(int idx = 1; idx <= 1; ++idx)
 	{
 		ss.clear();
-                ss<<"./img/"<<argv[1]<<"_"<<idx<<".jpg";
+                //ss<<"./"<<argv[1]<<"_"<<idx<<".jpg";
+		ss<<"./pingguo_1.jpg";
 		ss>>filename;
 		img = imread(filename);
                 if(img.empty())
                     return 1;
 		food.getImg(img);//push the img to cnn
+		printf("forward:\n");
                 Soutput out = food.forward();
                 cout<<idx<<" : "<<out.idx<<endl;//get the result
-                //for(int i=0;i<8;i++)
-                //    cout<<out.score[i]<<"    ";
-                 //cout<<endl;
+                for(int i=0;i<8;i++)
+                    cout<<out.score[i]<<"    ";
+                cout<<endl;
 	}
 
 	return 0;
