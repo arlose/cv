@@ -22,7 +22,7 @@ for i in range(0, pointnum):
 pts1 = np.array(pts, np.int32)
 cv2.fillConvexPoly(img, pts1, 1)
 
-# 反色
+# 形态滤波，反色，色彩转换
 img1 = np.uint8(img*255)
 kernel = cv2.getStructuringElement(cv2.MORPH_RECT,(7, 7)) 
 res = cv2.dilate(img1,kernel)
