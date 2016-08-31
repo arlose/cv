@@ -8,11 +8,11 @@ width = 200
 height = 100
 
 # 各个端点，以小数形式表示
-p=[(0.1,0.2),(0.2,0.1),(0.8,0.3),(0.7,0.9),(0.3,0.8),(0.2,0.4)]
+p=[(0.0,0.0),(0.2,0.1),(0.8,0.3),(0.7,0.9),(0.3,0.8),(0.2,0.4)]
 pointnum = 6
 
 # 生成一个黑色图像
-img = np.zeros((height, width))
+img = np.zeros((height, width))#, dtype=np.uint8)
 
 # 画多边形填充区域
 pts=[]
@@ -22,9 +22,20 @@ for i in range(0, pointnum):
 pts1 = np.array(pts, np.int32)
 cv2.fillConvexPoly(img, pts1, 1)
 
+# 反色
+img1 = np.uint8(img*255)
+kernel = cv2.getStructuringElement(cv2.MORPH_RECT,(7, 7)) 
+res = cv2.dilate(img1,kernel)
+#res = cv2.erode(img1,kernel)
+#res = cv2.morphologyEx(img1, cv2.MORPH_OPEN, kernel) 
+#res = cv2.morphologyEx(img1, cv2.MORPH_CLOSE, kernel)  
+ret, res = cv2.threshold(res,127,255,cv2.THRESH_BINARY_INV) 
+
 # 显示
 cv2.namedWindow('image')
 cv2.imshow('image', img)
+cv2.namedWindow('res')
+cv2.imshow('res', res)
 cv2.waitKey(0)
 
 
