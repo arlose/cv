@@ -30,12 +30,13 @@ res = cv2.dilate(img1,kernel)
 #res = cv2.morphologyEx(img1, cv2.MORPH_OPEN, kernel) 
 #res = cv2.morphologyEx(img1, cv2.MORPH_CLOSE, kernel)  
 ret, res = cv2.threshold(res,127,255,cv2.THRESH_BINARY_INV) 
+result = cv2.cvtColor(res, cv2.COLOR_GRAY2RGB)
 
 # 显示
 cv2.namedWindow('image')
 cv2.imshow('image', img)
 cv2.namedWindow('res')
-cv2.imshow('res', res)
+cv2.imshow('res', result)
 cv2.waitKey(0)
 
 
