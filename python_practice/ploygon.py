@@ -9,7 +9,7 @@ height = 100
 
 # 各个端点，以小数形式表示
 p=[(0.0,0.0),(0.2,0.1),(0.8,0.3),(0.7,0.9),(0.3,0.8),(0.2,0.4)]
-pointnum = 6
+pointnum = len(p)
 
 # 生成一个黑色图像
 img = np.zeros((height, width))#, dtype=np.uint8)
