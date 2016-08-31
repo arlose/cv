@@ -17,14 +17,13 @@ filename = time.strftime("%m-%d-%H-%M-%S") + '.avi'
 #fourcc = cv2.cv.CV_FOURCC('m','p','4','v')
 fourcc = cv2.VideoWriter_fourcc(*'XVID') # mp4v MJPG
 out = cv2.VideoWriter(filename,fourcc, 20.0, (im.shape[1],im.shape[0]), True)
-i=0
 while(cap.isOpened()):
     ret, im = cap.read()
+    if ret is False:
+        break
     out.write(im)
-    cv2.imshow("show", im)
-    cv2.waitKey(1)
-    print i
-    i=i+1
+    #cv2.imshow("show", im)
+    #cv2.waitKey(1)
 cap.release()
 out.release()
 '''
@@ -38,6 +37,8 @@ writer = VideoWriter(filename, frameSize=(im.shape[1], im.shape[0]))
 writer.open()
 while(cap.isOpened()):
     ret, im = cap.read()
+    if ret is False:
+        break
     writer.write(im)
     cv2.imshow("show", im)
     cv2.waitKey(1)
