@@ -13,6 +13,7 @@ VOC2007Path = './VOC2007'
 AnnotationsPath = VOC2007Path+'/Annotations'
 ImageSetsPath = VOC2007Path+'/ImageSets'
 JPEGImagesPath = VOC2007Path+'/JPEGImages'
+UnusePath = VOC2007Path+'/Unused'
 
 ORGImagePath = './Images'
 ORGLabelPath = './Labels'
@@ -86,10 +87,22 @@ def genxml(filename, width, height, rects):
       truncatedNode=create_element(doc,'truncated','0')
       difficultNode=create_element(doc,'difficult','0')
       bndboxNode=doc.createElement('bndbox')
-      xminNode=create_element(doc,'xmin',rect[0])
-      yminNode=create_element(doc,'ymin',rect[1])
-      xmaxNode=create_element(doc,'xmax',rect[2])
-      ymaxNode=create_element(doc,'ymax',rect[3])
+      xmin = int(rect[0])
+      xmin = max(1,xmin)
+      xmin = min(xmin,width-1)
+      ymin = int(rect[1])
+      ymin = max(1,ymin)
+      ymin = min(ymin,height-1)
+      xmax = int(rect[2])
+      xmax = max(1,xmax)
+      xmax = min(xmax,width-1)
+      ymax = int(rect[3])
+      ymax = max(1,ymax)
+      ymax = min(ymax,height-1)
+      xminNode=create_element(doc,'xmin',str(xmin))
+      yminNode=create_element(doc,'ymin',str(ymin))
+      xmaxNode=create_element(doc,'xmax',str(xmax))
+      ymaxNode=create_element(doc,'ymax',str(ymax))
       bndboxNode.appendChild(xminNode)
       bndboxNode.appendChild(yminNode)
       bndboxNode.appendChild(xmaxNode)
@@ -116,6 +129,8 @@ if not os.path.isdir(ImageSetsPath+'/Main'):
   os.mkdir(ImageSetsPath+'/Main')
 if not os.path.isdir(JPEGImagesPath):
   os.mkdir(JPEGImagesPath)
+if not os.path.isdir(UnusePath):
+  os.mkdir(UnusePath)
 
 # 将jpg/txt文件名加middle和side前缀移动到VOC2007文件夹中
 prestrs = []
@@ -143,14 +158,25 @@ for prestr in prestrs:
           shutil.move(txtfile, AnnotationsPath+'/'+newfilename+'.txt')
 
 # 获取VOC2007文件夹中的图像名称，存入ImageSets/Main/trainval.txt中
+# 同时删除没有任何标记的文件
+count = 0
 ftxt = open(ImageSetsPath+'/Main/trainval.txt','w')
 for fpathe,dirs,fs in os.walk(JPEGImagesPath):
   for f in fs:
     if os.path.splitext(f)[1] in suffix_list:
       imagefile = os.path.join(fpathe,f)
+      labelfile = os.path.join(fpathe,f).replace('jpg','txt')
+      labelfile = labelfile.replace('JPEGImages','Annotations')
+      rects = readrects(labelfile)
       filename = os.path.basename(imagefile).split('.')[-2]
-      ftxt.write(filename+'\n')
-      print filename
+      if len(rects)==0:
+        print filename
+        shutil.move(imagefile, UnusePath)
+        shutil.move(labelfile, UnusePath)
+      else:
+        ftxt.write(filename+'\n')
+        count = count + 1
+print 'total image number:' + str(count)
 ftxt.close()
 
 # 多进程生成相应的xml文件
@@ -185,3 +211,5 @@ for i in range(n):
   p.append(multiprocessing.Process(target = multigenxml, args = (flist[i],)))
 for i in range(n):
   p[i].start()
+
+

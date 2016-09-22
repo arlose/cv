@@ -15,6 +15,8 @@ import random
 COLORS = ['red', 'orange', 'yellow', 'green', 'cyan', 'blue', 'purple']
 # image sizes for the examples
 SIZE = 256, 256
+
+IMAGESIZE = 800
 # image format
 Image_FORMAT = ['.jpg', '.JPG', 'jpeg', '.JPEG', '.png', '.PNG']
 
@@ -87,7 +89,7 @@ class LabelTool():
         #self.parent.bind("a", self.prevImage) # press 'a' to go backforward
         #self.parent.bind("d", self.nextImage) # press 'd' to go forward
         self.mainPanel.grid(row = 1, column = 1, rowspan = 5, sticky = W+N)
-        self.mainPanel.config(width = 400, height = 400)
+        self.mainPanel.config(width = IMAGESIZE, height = IMAGESIZE)
 
         # showing bbox info & delete bbox
         self.lb1 = Label(self.frame, text = '画框信息:')
@@ -110,6 +112,8 @@ class LabelTool():
         self.prevBtn.pack(side = LEFT, padx = 5, pady = 3)
         self.nextBtn = Button(self.ctrPanel, text='后一张 >>', width = 10, command = self.nextImage)
         self.nextBtn.pack(side = LEFT, padx = 5, pady = 3)
+        self.nextBtncp = Button(self.ctrPanel, text='后一张(copy) >>', width = 10, command = self.nextcpImage)
+        self.nextBtncp.pack(side = LEFT, padx = 5, pady = 3)
         self.progLabel = Label(self.ctrPanel, text = "图片:     /    ")
         self.progLabel.pack(side = LEFT, padx = 5)
         self.tmpLabel = Label(self.ctrPanel, text = "前往图片 No.")
@@ -256,11 +260,11 @@ class LabelTool():
         #    self.egList.append(ImageTk.PhotoImage(self.tmp[-1]))
         #    self.egLabels[i].config(image = self.egList[-1], width = SIZE[0], height = SIZE[1])
 		"""
-
-        self.loadImage()
+        boxes = []
+        self.loadImage(boxes)
         print '%d images loaded from %s' %(self.total, self.category)
 
-    def loadImage(self):
+    def loadImage(self, boxes):
         # load image
         self.scaleRate = 1.0
         widthRate = 0.0
@@ -270,10 +274,10 @@ class LabelTool():
         print "img.size :",self.img.size
         print "img.format :",self.img.format
         self.img_width, self.img_height = self.img.size
-        if self.img_width > 400:
-            widthRate = self.img_width / 400.0
-        if self.img_height > 400:
-            heightRate = self.img_height / 400.0
+        if self.img_width > IMAGESIZE:
+            widthRate = self.img_width*1.0 / IMAGESIZE
+        if self.img_height > IMAGESIZE:
+            heightRate = self.img_height*1.0 / IMAGESIZE
         self.scaleRate = max(widthRate, heightRate, 1.0)
         print "scaleRate :",self.scaleRate
         if self.scaleRate != 1.0:
@@ -291,6 +295,21 @@ class LabelTool():
         labelname = self.imagename + '.txt'
         self.labelfilename = os.path.join(self.outDir, labelname)
         bbox_cnt = 0
+        if len(boxes)!=0:
+            for i in range(len(boxes)):
+                self.bboxList.append(boxes[i])
+                tmp0 = int(boxes[i][0])
+                tmp1 = int(boxes[i][1])
+                tmp2 = int(boxes[i][2])
+                tmp3 = int(boxes[i][3])
+                tmp4 = boxes[i][4]
+                tmpId = self.mainPanel.create_rectangle(int(float(tmp0)/self.scaleRate), int(float(tmp1)/self.scaleRate), \
+                                                            int(float(tmp2)/self.scaleRate), int(float(tmp3)/self.scaleRate), \
+                                                            width = 2, \
+                                                            outline = COLORS[(len(self.bboxList)-1) % len(COLORS)])
+                self.bboxIdList.append(tmpId)
+                self.listbox.insert(END, '(%d, %d) -> (%d, %d):%s' %(tmp0, tmp1, tmp2, tmp3, tmp4))
+                self.listbox.itemconfig(len(self.bboxIdList) - 1, fg = COLORS[(len(self.bboxIdList) - 1) % len(COLORS)])
         if os.path.exists(self.labelfilename):
             with open(self.labelfilename) as f:
                 for (i, line) in enumerate(f):
@@ -320,6 +339,7 @@ class LabelTool():
                     self.bboxIdList.append(tmpId)
                     self.listbox.insert(END, '(%d, %d) -> (%d, %d):%s' %(tmp[0], tmp[1], tmp[2], tmp[3], tmp[4]))
                     self.listbox.itemconfig(len(self.bboxIdList) - 1, fg = COLORS[(len(self.bboxIdList) - 1) % len(COLORS)])
+    
 
     def saveImage(self):
         with open(self.labelfilename, 'w') as f:
@@ -431,7 +451,8 @@ class LabelTool():
             tkMessageBox.showinfo("", "当前已是第一张图片")
         if self.cur > 1:
             self.cur -= 1
-            self.loadImage()
+            boxes = []
+            self.loadImage(boxes)
 
     def nextImage(self, event = None):
         self.saveImage()
@@ -439,14 +460,26 @@ class LabelTool():
             tkMessageBox.showinfo("", "当前已是最后一张图片")
         if self.cur < self.total:
             self.cur += 1
-            self.loadImage()
+            boxes = []
+            self.loadImage(boxes)
+
+    def nextcpImage(self, event = None):
+        self.saveImage()
+        if self.cur == self.total:
+            tkMessageBox.showinfo("", "当前已是最后一张图片")
+        if self.cur < self.total:
+            self.cur += 1
+            boxes = self.bboxList
+            self.loadImage(boxes)        
+            
 
     def gotoImage(self):
         idx = int(self.idxEntry.get())
         if 1 <= idx and idx <= self.total:
             self.saveImage()
             self.cur = idx
-            self.loadImage()
+            boxes = []
+            self.loadImage(boxes)
 
 ##    def setImage(self, imagepath = r'test2.png'):
 ##        self.img = Image.open(imagepath)
