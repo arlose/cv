@@ -3,8 +3,9 @@ import os
 import sys
 import string
 # 解决中文打印问题 sudo pip install uniout
-import uniout 
+import uniout
 
+filecount = 0
 suffix_list=['.txt']
 # txt文件夹
 txtpath = './Annotations'
@@ -49,5 +50,7 @@ for fpathe,dirs,fs in os.walk(txtpath):
       labelfile = os.path.join(fpathe,f)
       rects = readrects(labelfile)
       countword(dictwords,rects)
+      filecount=filecount+1
+print filecount
 print dictwords
 
