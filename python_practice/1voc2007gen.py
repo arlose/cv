@@ -16,7 +16,7 @@ JPEGImagesPath = VOC2007Path+'/JPEGImages'
 UnusePath = VOC2007Path+'/Unused'
 
 ORGImagePath = './Images'
-ORGLabelPath = './Labels'
+
 # 生成图像xml文件
 def readrects(labelfile):
   try:
@@ -87,18 +87,14 @@ def genxml(filename, width, height, rects):
       truncatedNode=create_element(doc,'truncated','0')
       difficultNode=create_element(doc,'difficult','0')
       bndboxNode=doc.createElement('bndbox')
-      xmin = int(rect[0])
-      xmin = max(1,xmin)
-      xmin = min(xmin,width-1)
-      ymin = int(rect[1])
-      ymin = max(1,ymin)
-      ymin = min(ymin,height-1)
-      xmax = int(rect[2])
-      xmax = max(1,xmax)
-      xmax = min(xmax,width-1)
-      ymax = int(rect[3])
-      ymax = max(1,ymax)
-      ymax = min(ymax,height-1)
+      xmin = max(int(rect[0]), 1)
+      ymin = max(int(rect[1]), 1)
+      xmax = min(int(rect[2]), width-1)
+      ymax = min(int(rect[3]), height-1)
+      if xmin > xmax:
+        xmax = xmin+1
+      if ymin > ymax:
+        ymax = ymin+1
       xminNode=create_element(doc,'xmin',str(xmin))
       yminNode=create_element(doc,'ymin',str(ymin))
       xmaxNode=create_element(doc,'xmax',str(xmax))
@@ -132,7 +128,7 @@ if not os.path.isdir(JPEGImagesPath):
 if not os.path.isdir(UnusePath):
   os.mkdir(UnusePath)
 
-# 将jpg/txt文件名加middle和side前缀移动到VOC2007文件夹中
+# 将jpg/txt文件名加前缀移动到VOC2007文件夹中
 prestrs = []
 dirs = os.listdir(ORGImagePath) 
 for d in dirs:
@@ -147,7 +143,6 @@ for prestr in prestrs:
         imagefile = os.path.join(fpathe,f)
         tmpname = imagefile.rsplit('.', 1)
         txtfile = tmpname[0]+'.txt'
-        txtfile = txtfile.replace('Images','Labels')
         filename = os.path.basename(imagefile).split('.')[-2]
         suffix = os.path.basename(imagefile).split('.')[-1]
         newfilename = prestr+'_'+filename
@@ -156,7 +151,7 @@ for prestr in prestrs:
           print filename
           shutil.move(imagefile, JPEGImagesPath+'/'+newfilename+'.'+suffix)
           shutil.move(txtfile, AnnotationsPath+'/'+newfilename+'.txt')
-
+'''
 # 获取VOC2007文件夹中的图像名称，存入ImageSets/Main/trainval.txt中
 # 同时删除没有任何标记的文件
 count = 0
@@ -211,5 +206,5 @@ for i in range(n):
   p.append(multiprocessing.Process(target = multigenxml, args = (flist[i],)))
 for i in range(n):
   p[i].start()
-
+'''
 

@@ -12,7 +12,7 @@ import random
 suffix_list=['.jpg', '.JPG', '.jpeg', '.JPEG', '.png', '.PNG']
 
 # 测试比率
-testratio = 0.2
+testratio = 0.1
 
 trainvalname = './VOC2007/ImageSets/Main/trainval.txt'
 testname = './VOC2007/ImageSets/Main/test.txt'
@@ -35,6 +35,8 @@ for fpathe,dirs,fs in os.walk(JPEGImagesPath):
       if os.path.exists(labelfile):
         lines.append(filename)
         count = count + 1
+      else :
+        print filename + ' not find label'
 print 'total image number:' + str(count)
 
 random.shuffle(lines)
